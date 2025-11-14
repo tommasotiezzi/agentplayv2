@@ -1,18 +1,11 @@
-/* ===================================
-   AGENT PLATFORM - AUTH STYLES
-   Basketball Blue & Orange Theme
-   =================================== */
-
+/* Auth styles from reference document */
 :root {
-    /* Basketball Color Palette */
     --primary-blue: #1e3a8a;
     --primary-blue-light: #2563eb;
     --primary-blue-dark: #1e40af;
     --accent-orange: #f97316;
     --accent-orange-light: #fb923c;
     --accent-orange-dark: #ea580c;
-    
-    /* Neutrals */
     --white: #ffffff;
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
@@ -21,12 +14,8 @@
     --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-900: #111827;
-    
-    /* Status Colors */
     --error-red: #dc2626;
     --success-green: #16a34a;
-    
-    /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -48,10 +37,6 @@ body {
     justify-content: center;
     padding: 20px;
 }
-
-/* ===================================
-   AUTH CONTAINER
-   =================================== */
 
 .auth-container {
     width: 100%;
@@ -77,10 +62,6 @@ body {
     box-shadow: var(--shadow-xl);
 }
 
-/* ===================================
-   LOGO SECTION
-   =================================== */
-
 .logo-section {
     text-align: center;
     margin-bottom: 32px;
@@ -97,16 +78,6 @@ body {
     font-size: 40px;
     margin: 0 auto 16px;
     box-shadow: var(--shadow-lg);
-    animation: bounce 1s ease infinite;
-}
-
-@keyframes bounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
 }
 
 .logo-section h1 {
@@ -120,10 +91,6 @@ body {
     color: var(--gray-600);
     font-size: 14px;
 }
-
-/* ===================================
-   FORM STYLES
-   =================================== */
 
 .auth-form {
     display: flex;
@@ -162,10 +129,6 @@ body {
     font-size: 12px;
 }
 
-/* ===================================
-   BUTTONS
-   =================================== */
-
 .btn-primary {
     background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
     color: var(--white);
@@ -199,10 +162,6 @@ body {
     transform: none;
 }
 
-/* ===================================
-   LOADER
-   =================================== */
-
 .loader {
     width: 20px;
     height: 20px;
@@ -217,10 +176,6 @@ body {
         transform: rotate(360deg);
     }
 }
-
-/* ===================================
-   MESSAGES
-   =================================== */
 
 .error-message {
     padding: 12px 16px;
@@ -253,10 +208,6 @@ body {
     }
 }
 
-/* ===================================
-   FOOTER
-   =================================== */
-
 .auth-footer {
     text-align: center;
     margin-top: 24px;
@@ -279,10 +230,6 @@ body {
 .auth-footer a:hover {
     color: var(--accent-orange);
 }
-
-/* ===================================
-   RESPONSIVE
-   =================================== */
 
 @media (max-width: 480px) {
     .auth-card {

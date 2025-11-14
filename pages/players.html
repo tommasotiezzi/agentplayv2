@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players - Agent Platform</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/players.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="main-content">
+            <div id="players-list-view" class="content-view">
+                <div class="page-header">
+                    <div>
+                        <h1>Players</h1>
+                        <p class="page-subtitle">Manage your player roster</p>
+                    </div>
+                    <button id="btn-add-player" class="btn-primary">
+                        <span>+ Add Player</span>
+                    </button>
+                </div>
+
+                <div class="tabs-container">
+                    <button class="tab-btn" data-tab="prospects">
+                        Prospects
+                        <span class="tab-count" id="prospects-count">0</span>
+                    </button>
+                    <button class="tab-btn active" data-tab="under-management">
+                        Under Management
+                        <span class="tab-count" id="management-count">0</span>
+                    </button>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search-input" placeholder="Search players...">
+                    </div>
+                    <div class="filters">
+                        <select id="filter-position" class="filter-select">
+                            <option value="">All Positions</option>
+                            <option value="Point Guard">Point Guard</option>
+                            <option value="Shooting Guard">Shooting Guard</option>
+                            <option value="Small Forward">Small Forward</option>
+                            <option value="Power Forward">Power Forward</option>
+                            <option value="Center">Center</option>
+                        </select>
+                        <select id="filter-status" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="free_agent">Free Agent</option>
+                            <option value="in_negotiation">In Negotiation</option>
+                            <option value="signed">Signed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="players-table">
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Position</th>
+                                <th>Age</th>
+                                <th>Status</th>
+                                <th>Current Team</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-table-body">
+                            <tr class="loading-row">
+                                <td colspan="6">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading players...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <div class="empty-icon">⚽</div>
+                        <h3>No players found</h3>
+                        <p>Start by adding your first player</p>
+                        <button class="btn-primary" onclick="document.getElementById('btn-add-player').click()">
+                            + Add Player
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="player-detail-view" class="content-view" style="display: none;">
+                <button id="btn-back-to-list" class="btn-back">
+                    ← Back to Players
+                </button>
+
+                <div class="player-header">
+                    <div class="player-header-content">
+                        <div class="player-avatar">
+                            <span id="player-avatar-text">--</span>
+                        </div>
+                        <div class="player-header-info">
+                            <h1 id="player-name-detail">--</h1>
+                            <div class="player-meta">
+                                <span id="player-position-detail">--</span>
+                                <span class="meta-separator">•</span>
+                                <span id="player-age-detail">-- years</span>
+                                <span class="meta-separator">•</span>
+                                <span id="player-status-badge" class="status-badge">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="player-header-actions">
+                        <button id="btn-edit-player" class="btn-secondary">Edit</button>
+                        <button id="btn-delete-player" class="btn-danger">Delete</button>
+                    </div>
+                </div>
+
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h3>Personal Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Full Name</span>
+                            <span class="detail-value" id="detail-full-name">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date of Birth</span>
+                            <span class="detail-value" id="detail-dob">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Position</span>
+                            <span class="detail-value" id="detail-position">--</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>Contact Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value" id="detail-email">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value" id="detail-phone">--</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>Current Status</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Player Status</span>
+                            <span class="detail-value" id="detail-status">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Current Team</span>
+                            <span class="detail-value" id="detail-team">--</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contract Expiry</span>
+                            <span class="detail-value" id="detail-contract-expiry">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="add-player-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Player</h2>
+                <button class="modal-close" id="close-add-modal">&times;</button>
+            </div>
+            <form id="add-player-form">
+                <!-- Player Type Selection (MANDATORY) -->
+                <div class="form-group-full">
+                    <label for="player_type">Type *</label>
+                    <select id="player_type" name="player_type" required>
+                        <option value="">Select Type</option>
+                        <option value="prospect">Prospect</option>
+                        <option value="player">Under Management</option>
+                    </select>
+                </div>
+
+                <div class="form-grid">
+                    <!-- Common fields -->
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <!-- Player-only fields (hidden for prospects) -->
+                    <div class="form-group player-only-field">
+                        <label for="date_of_birth">Date of Birth</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth">
+                    </div>
+                    <div class="form-group player-only-field">
+                        <label for="position">Position</label>
+                        <select id="position" name="position">
+                            <option value="">Select Position</option>
+                            <option value="Point Guard">Point Guard</option>
+                            <option value="Shooting Guard">Shooting Guard</option>
+                            <option value="Small Forward">Small Forward</option>
+                            <option value="Power Forward">Power Forward</option>
+                            <option value="Center">Center</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notes (for prospects) -->
+                <div class="form-group-full prospect-only-field">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about this prospect..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-add">Cancel</button>
+                    <button type="submit" class="btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-player-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Player</h2>
+                <button class="modal-close" id="close-edit-modal">&times;</button>
+            </div>
+            <form id="edit-player-form">
+                <input type="hidden" id="edit_player_id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit_first_name">First Name *</label>
+                        <input type="text" id="edit_first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_last_name">Last Name *</label>
+                        <input type="text" id="edit_last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_date_of_birth">Date of Birth</label>
+                        <input type="date" id="edit_date_of_birth" name="date_of_birth">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_position">Position</label>
+                        <select id="edit_position" name="position">
+                            <option value="">Select Position</option>
+                            <option value="Point Guard">Point Guard</option>
+                            <option value="Shooting Guard">Shooting Guard</option>
+                            <option value="Small Forward">Small Forward</option>
+                            <option value="Power Forward">Power Forward</option>
+                            <option value="Center">Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_email">Email</label>
+                        <input type="email" id="edit_email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_phone">Phone</label>
+                        <input type="tel" id="edit_phone" name="phone">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-edit">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/players.js"></script>
+</body>
+</html>

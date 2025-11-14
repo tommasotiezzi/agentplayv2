@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST BRUTAL</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-box {
+            background: yellow;
+            border: 5px solid red;
+            padding: 40px;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar-test {
+            background: blue;
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .sidebar-test {
+            background: green;
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        ✅ SE VEDI QUESTO BOX GIALLO, L'HTML FUNZIONA
+    </div>
+
+    <div class="navbar-test">
+        NAVBAR TEST - Should be BLUE
+    </div>
+
+    <div class="sidebar-test">
+        SIDEBAR TEST - Should be GREEN
+    </div>
+
+    <div id="js-test" style="background: orange; padding: 20px; margin: 20px 0;">
+        ❌ ASPETTANDO JAVASCRIPT...
+    </div>
+
+    <script>
+        console.log('🧪 Test brutal loaded');
+        document.getElementById('js-test').innerHTML = '✅ JAVASCRIPT FUNZIONA!';
+        document.getElementById('js-test').style.background = 'lime';
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    
+    <div id="supabase-test" style="background: purple; color: white; padding: 20px; margin: 20px 0;">
+        ❌ ASPETTANDO SUPABASE...
+    </div>
+
+    <script>
+        setTimeout(() => {
+            if (typeof supabase !== 'undefined') {
+                document.getElementById('supabase-test').innerHTML = '✅ SUPABASE CARICATO!';
+                document.getElementById('supabase-test').style.background = 'green';
+                console.log('✅ Supabase available');
+            } else {
+                document.getElementById('supabase-test').innerHTML = '❌ SUPABASE NON TROVATO!';
+                document.getElementById('supabase-test').style.background = 'red';
+                console.error('❌ Supabase not available');
+            }
+        }, 1000);
+    </script>
+
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+
+    <div id="components-test" style="background: gray; color: white; padding: 20px; margin: 20px 0;">
+        ❌ ASPETTANDO COMPONENTS...
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const hasNavbar = document.querySelector('.navbar');
+            const hasSidebar = document.querySelector('.sidebar');
+            
+            let msg = '';
+            if (hasNavbar) msg += '✅ Navbar rendered! ';
+            else msg += '❌ Navbar NOT found! ';
+            
+            if (hasSidebar) msg += '✅ Sidebar rendered!';
+            else msg += '❌ Sidebar NOT found!';
+            
+            document.getElementById('components-test').innerHTML = msg;
+            document.getElementById('components-test').style.background = (hasNavbar && hasSidebar) ? 'green' : 'red';
+        }, 2000);
+    </script>
+</body>
+</html>
