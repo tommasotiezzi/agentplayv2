@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Platform - Dashboard</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="logo-circle-small">🏀</div>
+                <span>Agent Platform</span>
+            </div>
+            <div class="nav-user">
+                <span id="user-email">Loading...</span>
+                <button id="logout-btn" class="btn-logout">Esci</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+            <div class="welcome-card">
+                <h1>🎉 Benvenuto nella tua piattaforma!</h1>
+                <p>Stiamo costruendo qualcosa di fantastico per te.</p>
+                <div class="placeholder-grid">
+                    <div class="placeholder-card">
+                        <div class="card-icon">👥</div>
+                        <h3>Giocatori</h3>
+                        <p>Gestisci il tuo roster</p>
+                    </div>
+                    <div class="placeholder-card">
+                        <div class="card-icon">🤝</div>
+                        <h3>Trattative</h3>
+                        <p>Segui le negoziazioni</p>
+                    </div>
+                    <div class="placeholder-card">
+                        <div class="card-icon">📝</div>
+                        <h3>Contratti</h3>
+                        <p>Visualizza i contratti attivi</p>
+                    </div>
+                    <div class="placeholder-card">
+                        <div class="card-icon">💰</div>
+                        <h3>Pagamenti</h3>
+                        <p>Monitora le commissioni</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>
