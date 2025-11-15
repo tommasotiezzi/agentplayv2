@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deals - Agent Platform</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/players.css">
+    <link rel="stylesheet" href="../css/contract-manager.css">
+    <link rel="stylesheet" href="../css/deals.css">
+</head>
+<body>
+    <!-- Navbar and Sidebar injected by components -->
+    
+    <div class="app-container">
+        <main class="main-content">
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <div>
+                    <h1>Deals</h1>
+                    <p class="page-subtitle">Manage player negotiations</p>
+                </div>
+                <div class="header-actions">
+                    <button id="btn-refresh" class="btn-secondary">
+                        <span>↻</span>
+                    </button>
+                    <div class="search-box">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search-players" placeholder="Search players...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLAYER DEALS BOARD (LEVEL 1 - KANBAN) -->
+            <div id="player-deals-board" class="kanban-board">
+                <!-- Column: Free Agent -->
+                <div class="kanban-column" data-status="free_agent">
+                    <div class="column-header">
+                        <h3>Free Agent</h3>
+                        <span class="column-count" id="count-free-agent">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-free-agent" data-status="free_agent">
+                        <!-- Player cards will be inserted here -->
+                        <div class="loading-placeholder">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Column: In Negotiation -->
+                <div class="kanban-column" data-status="in_negotiation">
+                    <div class="column-header">
+                        <h3>In Negotiation</h3>
+                        <span class="column-count" id="count-in-negotiation">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-in-negotiation" data-status="in_negotiation">
+                        <!-- Player cards will be inserted here -->
+                        <div class="loading-placeholder">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Column: Signed -->
+                <div class="kanban-column" data-status="signed">
+                    <div class="column-header">
+                        <h3>Signed</h3>
+                        <span class="column-count" id="count-signed">0</span>
+                    </div>
+                    <div class="column-cards" id="cards-signed" data-status="signed">
+                        <!-- Player cards will be inserted here -->
+                        <div class="loading-placeholder">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TEAM DEALS MODAL (LEVEL 2) -->
+    <div id="team-deals-modal" class="modal deals-modal" style="display: none;">
+        <div class="modal-content deals-modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header deals-modal-header">
+                <button id="btn-back-to-board" class="btn-back">← Back</button>
+                <div class="player-info-header">
+                    <div class="player-avatar-small" id="modal-player-avatar">--</div>
+                    <div>
+                        <h2 id="modal-player-name">Player Name</h2>
+                        <span id="modal-player-meta" class="player-meta-text">Position • Age</span>
+                    </div>
+                </div>
+                <button class="modal-close" id="close-team-deals-modal">&times;</button>
+            </div>
+
+            <!-- Modal Body: Kanban + Notes Panel -->
+            <div class="deals-modal-body">
+                <!-- Left: Team Deals Kanban -->
+                <div class="team-deals-section">
+                    <div class="team-deals-header">
+                        <button id="btn-add-team-deal" class="btn-primary btn-sm">+ Add Team</button>
+                        <button id="btn-add-reminder-header" class="btn-secondary btn-sm">🔔 Add Reminder</button>
+                    </div>
+
+                    <div class="team-deals-board">
+                        <!-- Column: Ongoing -->
+                        <div class="kanban-column team-column">
+                            <div class="column-header">
+                                <h4>Ongoing</h4>
+                                <span class="column-count" id="team-count-ongoing">0</span>
+                            </div>
+                            <div class="column-cards team-cards" id="team-cards-ongoing" data-stage="ongoing">
+                                <!-- Team deal cards here -->
+                            </div>
+                        </div>
+
+                        <!-- Column: Sent -->
+                        <div class="kanban-column team-column">
+                            <div class="column-header">
+                                <h4>Sent</h4>
+                                <span class="column-count" id="team-count-sent">0</span>
+                            </div>
+                            <div class="column-cards team-cards" id="team-cards-sent" data-stage="sent">
+                                <!-- Team deal cards here -->
+                            </div>
+                        </div>
+
+                        <!-- Column: Signed -->
+                        <div class="kanban-column team-column">
+                            <div class="column-header">
+                                <h4>Signed</h4>
+                                <span class="column-count" id="team-count-signed">0</span>
+                            </div>
+                            <div class="column-cards team-cards" id="team-cards-signed" data-stage="signed">
+                                <!-- Team deal cards here -->
+                            </div>
+                        </div>
+
+                        <!-- Column: Not Signed -->
+                        <div class="kanban-column team-column">
+                            <div class="column-header">
+                                <h4>Not Signed</h4>
+                                <span class="column-count" id="team-count-not_signed">0</span>
+                            </div>
+                            <div class="column-cards team-cards" id="team-cards-not_signed" data-stage="not_signed">
+                                <!-- Team deal cards here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Notes Panel -->
+                <div class="notes-panel">
+                    <div class="notes-panel-header">
+                        <h3>Notes</h3>
+                        <select id="notes-filter-team" class="filter-select-sm">
+                            <option value="">All Teams</option>
+                            <!-- Team options populated by JS -->
+                        </select>
+                    </div>
+
+                    <div class="notes-list" id="notes-list">
+                        <!-- Notes will be inserted here -->
+                        <div class="notes-empty">
+                            <p>No notes yet</p>
+                        </div>
+                    </div>
+
+                    <div class="notes-panel-footer">
+                        <div class="add-note-form">
+                            <select id="note-team-select" class="form-select-sm" required>
+                                <option value="">Select Team *</option>
+                                <!-- Team options populated by JS -->
+                            </select>
+                            <textarea id="note-text-input" placeholder="Add a note..." rows="3"></textarea>
+                            <div class="add-note-actions">
+                                <button id="btn-add-note" class="btn-primary btn-sm">Add Note</button>
+                                <button id="btn-add-reminder" class="btn-secondary btn-sm">+ Reminder</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Team Dropdown (positioned dynamically) -->
+    <div id="add-team-dropdown" class="dropdown-menu" style="display: none;">
+        <input type="text" class="dropdown-search" id="team-search" placeholder="Search teams...">
+        <div class="dropdown-list" id="team-dropdown-list">
+            <!-- Team options will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Add Reminder Modal -->
+    <div id="add-reminder-modal" class="modal reminder-modal" style="display: none;">
+        <div class="modal-content reminder-modal-content">
+            <div class="modal-header">
+                <h2>Add Reminder</h2>
+                <button class="modal-close" id="close-reminder-modal">&times;</button>
+            </div>
+            <form id="add-reminder-form">
+                <div class="form-section">
+                    <div class="form-group-full">
+                        <label for="reminder_title">Title *</label>
+                        <input type="text" id="reminder_title" name="title" required placeholder="e.g., Follow up with Milano">
+                    </div>
+                    
+                    <div class="form-group-full">
+                        <label for="reminder_description">Description</label>
+                        <textarea id="reminder_description" name="description" rows="3" placeholder="Additional notes..."></textarea>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="reminder_due_date">Due Date</label>
+                            <input type="date" id="reminder_due_date" name="due_date">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reminder_tag">Category</label>
+                            <select id="reminder_tag" name="tag">
+                                <option value="general">General</option>
+                                <option value="deal">Deal</option>
+                                <option value="player">Player</option>
+                                <option value="contract_expiry">Contract Expiry</option>
+                                <option value="payment">Payment</option>
+                                <option value="financial">Financial</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-full" id="reminder-link-section" style="display: none;">
+                        <label for="reminder_team_deal">Link to Deal (Optional)</label>
+                        <select id="reminder_team_deal" name="team_deal_id">
+                            <option value="">None</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-reminder">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Reminder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/contract-manager.js"></script>
+    <script src="../js/deals/deals-board.js"></script>
+</body>
+</html>

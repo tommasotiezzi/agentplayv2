@@ -21,36 +21,25 @@ class Sidebar {
                 href: 'deals.html',
                 icon: '🤝',
                 label: 'Deals',
-                id: 'deals',
-                disabled: true
-            },
-            {
-                href: 'contracts.html',
-                icon: '📝',
-                label: 'Contracts',
-                id: 'contracts',
-                disabled: true
+                id: 'deals'
             },
             {
                 href: 'payments.html',
                 icon: '💰',
                 label: 'Payments',
-                id: 'payments',
-                disabled: true
+                id: 'payments'
             },
             {
                 href: 'calendar.html',
                 icon: '📅',
                 label: 'Calendar',
-                id: 'calendar',
-                disabled: true
+                id: 'calendar'
             },
             {
                 href: 'contacts.html',
                 icon: '📞',
                 label: 'Contacts',
-                id: 'contacts',
-                disabled: true
+                id: 'contacts'
             }
         ];
     }

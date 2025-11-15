@@ -6,6 +6,7 @@
     <title>Players - Agent Platform</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/players.css">
+    <link rel="stylesheet" href="../css/contract-manager.css">
 </head>
 <body>
     <div class="app-container">
@@ -159,6 +160,31 @@
                             <span class="detail-value" id="detail-contract-expiry">--</span>
                         </div>
                     </div>
+
+                    <!-- CURRENT CONTRACT CARD -->
+                    <div class="detail-card" id="contract-card" style="grid-column: 1 / -1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">Current Contract</h3>
+                            <div style="display: flex; gap: 12px;">
+                                <button id="btn-view-contract-history" class="btn-secondary">📜 Contract History</button>
+                                <button id="btn-open-contract-modal" class="btn-primary">+ Add/Edit Contract</button>
+                            </div>
+                        </div>
+                        <div id="contract-details-content">
+                            <p style="color: var(--gray-600); text-align: center; padding: 20px;">No active contract</p>
+                        </div>
+                    </div>
+
+                    <!-- CONTRACT HISTORY CARD (HIDDEN BY DEFAULT) -->
+                    <div class="detail-card" id="contract-history-card" style="grid-column: 1 / -1; display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;">Contract History</h3>
+                            <button id="btn-close-contract-history" class="btn-secondary">✕ Close</button>
+                        </div>
+                        <div id="contract-history-content">
+                            <p style="color: var(--gray-600); text-align: center; padding: 20px;">Loading...</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -171,7 +197,6 @@
                 <button class="modal-close" id="close-add-modal">&times;</button>
             </div>
             <form id="add-player-form">
-                <!-- Player Type Selection (MANDATORY) -->
                 <div class="form-group-full">
                     <label for="player_type">Type *</label>
                     <select id="player_type" name="player_type" required>
@@ -182,7 +207,6 @@
                 </div>
 
                 <div class="form-grid">
-                    <!-- Common fields -->
                     <div class="form-group">
                         <label for="first_name">First Name *</label>
                         <input type="text" id="first_name" name="first_name" required>
@@ -200,7 +224,6 @@
                         <input type="tel" id="phone" name="phone">
                     </div>
                     
-                    <!-- Player-only fields (hidden for prospects) -->
                     <div class="form-group player-only-field">
                         <label for="date_of_birth">Date of Birth</label>
                         <input type="date" id="date_of_birth" name="date_of_birth">
@@ -218,7 +241,6 @@
                     </div>
                 </div>
 
-                <!-- Notes (for prospects) -->
                 <div class="form-group-full prospect-only-field">
                     <label for="notes">Notes</label>
                     <textarea id="notes" name="notes" rows="3" placeholder="Any additional notes about this prospect..."></textarea>
@@ -260,7 +282,6 @@
                             <option value="Point Guard">Point Guard</option>
                             <option value="Shooting Guard">Shooting Guard</option>
                             <option value="Small Forward">Small Forward</option>
-                            <option value="Power Forward">Power Forward</option>
                             <option value="Center">Center</option>
                         </select>
                     </div>
@@ -285,6 +306,7 @@
     <script src="../js/supabase-config.js"></script>
     <script src="../js/components/navbar.js"></script>
     <script src="../js/components/sidebar.js"></script>
+    <script src="../js/contract-manager.js"></script>
     <script src="../js/players.js"></script>
 </body>
 </html>

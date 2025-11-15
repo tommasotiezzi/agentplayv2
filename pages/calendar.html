@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - Agent Platform</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/players.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1>Calendar</h1>
+                    <p class="page-subtitle">Your reminders and important dates</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button id="btn-prev-month" class="btn-secondary">← Prev</button>
+                    <button id="btn-today" class="btn-secondary">Today</button>
+                    <button id="btn-next-month" class="btn-secondary">Next →</button>
+                </div>
+            </div>
+
+            <!-- CALENDAR VIEW -->
+            <div class="detail-card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 20px; border-bottom: 1px solid var(--gray-200); background: var(--gray-50);">
+                    <h2 id="current-month" style="margin: 0; font-size: 24px; font-weight: 700; text-align: center;"></h2>
+                </div>
+                
+                <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); background: white;">
+                    <!-- Day headers -->
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Mon</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Tue</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Wed</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Thu</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Fri</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Sat</div>
+                    <div style="padding: 12px; text-align: center; font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--gray-200);">Sun</div>
+                    
+                    <!-- Calendar days will be inserted here -->
+                </div>
+            </div>
+
+            <!-- UPCOMING REMINDERS LIST -->
+            <div class="detail-card" style="margin-top: 24px;">
+                <h3>Upcoming Reminders</h3>
+                <div id="upcoming-reminders">
+                    <p style="text-align: center; color: var(--gray-600); padding: 20px;">Loading...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/calendar.js"></script>
+</body>
+</html>

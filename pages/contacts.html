@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts - Agent Platform</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/players.css">
+</head>
+<body>
+    <div class="app-container">
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1>Contacts</h1>
+                    <p class="page-subtitle">All your contacts in one place</p>
+                </div>
+                <button id="btn-add-contact" class="btn-primary">+ Add Contact</button>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <span class="search-icon">⌕</span>
+                    <input type="text" id="search-input" placeholder="Search contacts...">
+                </div>
+                <div class="filters">
+                    <select id="filter-role" class="filter-select">
+                        <option value="">All Roles</option>
+                        <option value="player">Player</option>
+                        <option value="director">Director</option>
+                        <option value="coach">Coach</option>
+                        <option value="agent">Agent</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="filter-team" class="filter-select">
+                        <option value="">All Teams</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CONTACTS TABLE -->
+            <div class="table-container">
+                <table class="players-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Team</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-table-body">
+                        <tr class="loading-row">
+                            <td colspan="6">
+                                <div class="loading-spinner"></div>
+                                <p>Loading contacts...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- ADD/EDIT CONTACT MODAL -->
+    <div id="contact-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Contact</h2>
+                <button class="modal-close" id="close-contact-modal">&times;</button>
+            </div>
+            <form id="contact-form">
+                <input type="hidden" id="contact_id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="contact_name">Name *</label>
+                        <input type="text" id="contact_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_role">Role</label>
+                        <select id="contact_role">
+                            <option value="">Select Role</option>
+                            <option value="player">Player</option>
+                            <option value="director">Director</option>
+                            <option value="coach">Coach</option>
+                            <option value="agent">Agent</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_email">Email</label>
+                        <input type="email" id="contact_email">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_phone">Phone</label>
+                        <input type="tel" id="contact_phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_team">Team</label>
+                        <select id="contact_team">
+                            <option value="">No Team</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group-full">
+                    <label for="contact_notes">Notes</label>
+                    <textarea id="contact_notes" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancel-contact">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/contacts.js"></script>
+</body>
+</html>
