@@ -474,9 +474,23 @@ class ContractManager {
                     const contractEndDate = new Date(formData.contract_end_date);
                     const today = new Date();
                     
+                    console.log('📅 Checking if should create reminders...');
+                    console.log('Contract end date:', contractEndDate);
+                    console.log('Today:', today);
+                    console.log('Is future date?', contractEndDate > today);
+                    
                     // Create reminders only if contract end date is in the future
                     if (contractEndDate > today) {
                         console.log('📅 Creating automatic contract expiration reminders...');
+                        
+                        // Get current user for user_id
+                        const { data: { user }, error: userError } = await supabase.auth.getUser();
+                        if (userError || !user) {
+                            console.error('❌ Could not get user for reminders:', userError);
+                            return;
+                        }
+                        
+                        console.log('👤 User ID for reminders:', user.id);
                         
                         // Calculate reminder dates
                         const reminder90Days = new Date(contractEndDate);
@@ -485,11 +499,15 @@ class ContractManager {
                         const reminder30Days = new Date(contractEndDate);
                         reminder30Days.setDate(reminder30Days.getDate() - 30);
                         
+                        console.log('📆 90-day reminder date:', reminder90Days);
+                        console.log('📆 30-day reminder date:', reminder30Days);
+                        console.log('📆 Expiration reminder date:', contractEndDate);
+                        
                         const reminders = [];
                         
                         // Add 90-day reminder if it's in the future
                         if (reminder90Days > today) {
-                            reminders.push({
+                            const reminder90 = {
                                 title: `Contract expiring in 90 days - ${result.data.teams.name}`,
                                 description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}`,
                                 due_date: reminder90Days.toISOString().split('T')[0],
@@ -497,13 +515,18 @@ class ContractManager {
                                 tag: 'contract',
                                 player_id: this.currentPlayerId,
                                 contract_id: result.data.id,
-                                auto_generated: true
-                            });
+                                auto_generated: true,
+                                user_id: user.id // ADD USER_ID!
+                            };
+                            reminders.push(reminder90);
+                            console.log('✅ Added 90-day reminder:', reminder90);
+                        } else {
+                            console.log('⚠️ 90-day reminder is in the past, skipping');
                         }
                         
                         // Add 30-day reminder if it's in the future
                         if (reminder30Days > today) {
-                            reminders.push({
+                            const reminder30 = {
                                 title: `Contract expiring in 30 days - ${result.data.teams.name}`,
                                 description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}. Time to negotiate renewal or find new opportunities.`,
                                 due_date: reminder30Days.toISOString().split('T')[0],
@@ -511,12 +534,17 @@ class ContractManager {
                                 tag: 'contract',
                                 player_id: this.currentPlayerId,
                                 contract_id: result.data.id,
-                                auto_generated: true
-                            });
+                                auto_generated: true,
+                                user_id: user.id // ADD USER_ID!
+                            };
+                            reminders.push(reminder30);
+                            console.log('✅ Added 30-day reminder:', reminder30);
+                        } else {
+                            console.log('⚠️ 30-day reminder is in the past, skipping');
                         }
                         
-                        // Add expiration day reminder
-                        reminders.push({
+                        // Add expiration day reminder (always if contract is future)
+                        const reminderExpiry = {
                             title: `CONTRACT EXPIRES TODAY - ${result.data.teams.name}`,
                             description: `Contract with ${result.data.teams.name} expires today! Ensure renewal is signed or player is free agent.`,
                             due_date: contractEndDate.toISOString().split('T')[0],
@@ -524,21 +552,34 @@ class ContractManager {
                             tag: 'contract',
                             player_id: this.currentPlayerId,
                             contract_id: result.data.id,
-                            auto_generated: true
-                        });
+                            auto_generated: true,
+                            user_id: user.id // ADD USER_ID!
+                        };
+                        reminders.push(reminderExpiry);
+                        console.log('✅ Added expiration day reminder:', reminderExpiry);
                         
                         // Insert reminders if any were created
                         if (reminders.length > 0) {
-                            const { error: reminderError } = await supabase
+                            console.log(`📝 Inserting ${reminders.length} reminders into database...`);
+                            console.log('Reminders to insert:', JSON.stringify(reminders, null, 2));
+                            
+                            const { data: insertedReminders, error: reminderError } = await supabase
                                 .from('reminders')
-                                .insert(reminders);
+                                .insert(reminders)
+                                .select();
                             
                             if (reminderError) {
-                                console.error('⚠️ Error creating reminders:', reminderError);
+                                console.error('❌ Error creating reminders:', reminderError);
+                                console.error('Error details:', JSON.stringify(reminderError, null, 2));
                             } else {
-                                console.log(`✅ Created ${reminders.length} automatic reminder(s) for contract expiration`);
+                                console.log(`✅ Successfully created ${reminders.length} reminder(s)`);
+                                console.log('Inserted reminders:', insertedReminders);
                             }
+                        } else {
+                            console.log('⚠️ No reminders to create (all dates in past)');
                         }
+                    } else {
+                        console.log('⚠️ Contract end date is not in future, skipping reminder creation');
                     }
                 } else {
                     console.log('📋 Historical contract - skipping player status update, payment creation, and reminders');
