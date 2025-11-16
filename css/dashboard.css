@@ -185,7 +185,6 @@ body {
 
 .app-container {
     flex: 1;
-    margin-left: 240px;
     min-height: calc(100vh - 60px);
     background: var(--gray-50);
 }
