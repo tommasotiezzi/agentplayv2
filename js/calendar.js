@@ -104,9 +104,11 @@ function renderCalendar() {
         
         dayReminders.slice(0, 3).forEach(reminder => {
             const reminderEl = document.createElement('div');
-            reminderEl.style.cssText = 'font-size: 11px; padding: 3px 6px; margin-bottom: 2px; background: var(--accent-orange); color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;';
+            // Use green for completed (#22c55e), yellow for in-progress (#eab308)
+            const bgColor = reminder.completed ? '#22c55e' : '#eab308';
+            reminderEl.style.cssText = `font-size: 11px; padding: 3px 6px; margin-bottom: 2px; background: ${bgColor}; color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;`;
             reminderEl.textContent = reminder.title;
-            reminderEl.title = reminder.title;
+            reminderEl.title = reminder.title + (reminder.completed ? ' ✓' : '');
             dayCell.appendChild(reminderEl);
         });
         
@@ -145,7 +147,7 @@ function renderUpcomingReminders() {
                 <div>
                     <div style="font-weight: 600; color: var(--gray-900);">${r.title}</div>
                     ${r.description ? `<div style="font-size: 13px; color: var(--gray-600); margin-top: 4px;">${r.description}</div>` : ''}
-                    <div style="font-size: 12px; color: ${isOverdue ? 'var(--error-red)' : 'var(--accent-orange)'}; margin-top: 4px; font-weight: 600;">
+                    <div style="font-size: 12px; color: ${isOverdue ? 'var(--error-red)' : '#eab308'}; margin-top: 4px; font-weight: 600;">
                         ${formatDate(r.due_date)}${isOverdue ? ' (Overdue)' : ''}
                     </div>
                 </div>

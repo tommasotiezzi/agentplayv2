@@ -462,8 +462,67 @@ class ContractManager {
                         }]);
                     
                     console.log('✅ Payment record created');
+                    
+                    // Create automatic reminders for contract expiration
+                    const contractEndDate = new Date(formData.contract_end_date);
+                    const today = new Date();
+                    
+                    // Create reminders only if contract end date is in the future
+                    if (contractEndDate > today) {
+                        console.log('📅 Creating automatic contract expiration reminders...');
+                        
+                        // Calculate reminder dates
+                        const reminder90Days = new Date(contractEndDate);
+                        reminder90Days.setDate(reminder90Days.getDate() - 90);
+                        
+                        const reminder30Days = new Date(contractEndDate);
+                        reminder30Days.setDate(reminder30Days.getDate() - 30);
+                        
+                        const reminders = [];
+                        
+                        // Add 90-day reminder if it's in the future
+                        if (reminder90Days > today) {
+                            reminders.push({
+                                title: `Contract expiring in 90 days - ${result.data.teams.name}`,
+                                description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}`,
+                                due_date: reminder90Days.toISOString().split('T')[0],
+                                completed: false,
+                                tag: 'contract',
+                                player_id: this.currentPlayerId,
+                                contract_id: result.data.id,
+                                auto_generated: true
+                            });
+                        }
+                        
+                        // Add 30-day reminder if it's in the future
+                        if (reminder30Days > today) {
+                            reminders.push({
+                                title: `Contract expiring in 30 days - ${result.data.teams.name}`,
+                                description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}. Time to negotiate renewal or find new opportunities.`,
+                                due_date: reminder30Days.toISOString().split('T')[0],
+                                completed: false,
+                                tag: 'contract',
+                                player_id: this.currentPlayerId,
+                                contract_id: result.data.id,
+                                auto_generated: true
+                            });
+                        }
+                        
+                        // Insert reminders if any were created
+                        if (reminders.length > 0) {
+                            const { error: reminderError } = await supabase
+                                .from('reminders')
+                                .insert(reminders);
+                            
+                            if (reminderError) {
+                                console.error('⚠️ Error creating reminders:', reminderError);
+                            } else {
+                                console.log(`✅ Created ${reminders.length} automatic reminder(s) for contract expiration`);
+                            }
+                        }
+                    }
                 } else {
-                    console.log('📋 Historical contract - skipping player status update and payment creation');
+                    console.log('📋 Historical contract - skipping player status update, payment creation, and reminders');
                 }
             }
             

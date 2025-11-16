@@ -478,6 +478,11 @@ async function addPlayer(type, formData) {
             
             data = result.data;
             error = result.error;
+            
+            // Auto-generate contact for new player
+            if (data && !error) {
+                await createPlayerContact(data.id, data);
+            }
         }
         
         if (error) {
@@ -505,7 +510,7 @@ async function addPlayer(type, formData) {
 }
 
 // ===================================
-// EDIT PLAYER
+// EDIT PLAYER WITH AUTO-CONTACT GENERATION
 // ===================================
 
 async function updatePlayer(playerId, formData) {
@@ -526,10 +531,13 @@ async function updatePlayer(playerId, formData) {
         
         console.log('✅ Player updated successfully:', data);
         
+        // Auto-generate or update contact for this player
+        await updatePlayerContact(playerId, data);
+        
         await loadPlayers();
         
         if (currentPlayer && currentPlayer.id === playerId) {
-            showPlayerDetail(playerId);
+            showPlayerDetail(playerId, 'player');
         }
         
         closeEditModal();
@@ -538,6 +546,90 @@ async function updatePlayer(playerId, formData) {
     } catch (error) {
         console.error('❌ Error updating player:', error);
         showError('Failed to update player. Please try again.');
+    }
+}
+
+// ===================================
+// AUTO-GENERATE/UPDATE PLAYER CONTACT
+// ===================================
+
+async function createPlayerContact(playerId, playerData) {
+    try {
+        console.log('📇 Creating contact for new player:', playerId);
+        
+        const contactData = {
+            name: `${playerData.first_name} ${playerData.last_name}`,
+            role: playerData.position || 'Player',
+            email: playerData.email || null,
+            phone: playerData.phone || null,
+            player_id: playerId
+        };
+        
+        const { error } = await supabase
+            .from('contacts')
+            .insert([contactData]);
+        
+        if (error) {
+            console.error('Error creating contact:', error);
+        } else {
+            console.log('✅ Contact created successfully');
+        }
+    } catch (error) {
+        console.error('❌ Error creating player contact:', error);
+    }
+}
+
+async function updatePlayerContact(playerId, playerData) {
+    try {
+        console.log('📇 Auto-updating contact for player:', playerId);
+        
+        // Check if contact already exists for this player
+        const { data: existingContact, error: checkError } = await supabase
+            .from('contacts')
+            .select('id')
+            .eq('player_id', playerId)
+            .single();
+        
+        if (checkError && checkError.code !== 'PGRST116') {
+            console.error('Error checking existing contact:', checkError);
+            return;
+        }
+        
+        const contactData = {
+            name: `${playerData.first_name} ${playerData.last_name}`,
+            role: playerData.position || 'Player',
+            email: playerData.email || null,
+            phone: playerData.phone || null,
+            player_id: playerId
+        };
+        
+        if (existingContact) {
+            // Update existing contact
+            const { error: updateError } = await supabase
+                .from('contacts')
+                .update(contactData)
+                .eq('id', existingContact.id);
+            
+            if (updateError) {
+                console.error('Error updating contact:', updateError);
+            } else {
+                console.log('✅ Contact updated successfully');
+            }
+        } else {
+            // Create new contact if doesn't exist
+            const { error: insertError } = await supabase
+                .from('contacts')
+                .insert([contactData]);
+            
+            if (insertError) {
+                console.error('Error creating contact:', insertError);
+            } else {
+                console.log('✅ Contact created successfully');
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error managing player contact:', error);
+        // Don't throw - this is a non-critical operation
     }
 }
 
@@ -834,6 +926,9 @@ async function convertToPlayer(prospectId) {
         if (playerError) throw playerError;
         
         console.log('✅ Player created:', newPlayer);
+        
+        // Auto-generate contact for the converted player
+        await createPlayerContact(newPlayer.id, newPlayer);
         
         const { error: updateError } = await supabase
             .from('prospects')
