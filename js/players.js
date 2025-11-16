@@ -557,12 +557,27 @@ async function createPlayerContact(playerId, playerData) {
     try {
         console.log('📇 Creating contact for new player:', playerId);
         
+        // Get team_id from current contract if exists
+        let teamId = null;
+        if (playerData.current_contract_id) {
+            const { data: contractData } = await supabase
+                .from('contracts')
+                .select('team_id')
+                .eq('id', playerData.current_contract_id)
+                .single();
+            
+            if (contractData) {
+                teamId = contractData.team_id;
+            }
+        }
+        
         const contactData = {
             name: `${playerData.first_name} ${playerData.last_name}`,
             role: playerData.position || 'Player',
             email: playerData.email || null,
             phone: playerData.phone || null,
-            player_id: playerId
+            player_id: playerId,
+            team_id: teamId
         };
         
         const { error } = await supabase
@@ -572,7 +587,7 @@ async function createPlayerContact(playerId, playerData) {
         if (error) {
             console.error('Error creating contact:', error);
         } else {
-            console.log('✅ Contact created successfully');
+            console.log('✅ Contact created successfully with team:', teamId);
         }
     } catch (error) {
         console.error('❌ Error creating player contact:', error);
@@ -595,12 +610,27 @@ async function updatePlayerContact(playerId, playerData) {
             return;
         }
         
+        // Get team_id from current contract if exists
+        let teamId = null;
+        if (playerData.current_contract_id) {
+            const { data: contractData } = await supabase
+                .from('contracts')
+                .select('team_id')
+                .eq('id', playerData.current_contract_id)
+                .single();
+            
+            if (contractData) {
+                teamId = contractData.team_id;
+            }
+        }
+        
         const contactData = {
             name: `${playerData.first_name} ${playerData.last_name}`,
             role: playerData.position || 'Player',
             email: playerData.email || null,
             phone: playerData.phone || null,
-            player_id: playerId
+            player_id: playerId,
+            team_id: teamId
         };
         
         if (existingContact) {
@@ -613,7 +643,7 @@ async function updatePlayerContact(playerId, playerData) {
             if (updateError) {
                 console.error('Error updating contact:', updateError);
             } else {
-                console.log('✅ Contact updated successfully');
+                console.log('✅ Contact updated successfully with team:', teamId);
             }
         } else {
             // Create new contact if doesn't exist
@@ -624,7 +654,7 @@ async function updatePlayerContact(playerId, playerData) {
             if (insertError) {
                 console.error('Error creating contact:', insertError);
             } else {
-                console.log('✅ Contact created successfully');
+                console.log('✅ Contact created successfully with team:', teamId);
             }
         }
     } catch (error) {
