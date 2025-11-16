@@ -4,6 +4,118 @@
    =================================== */
 
 // ===================================
+// CUSTOM MODAL DIALOGS
+// ===================================
+
+function showConfirm(message, onConfirm, title = 'Confirm Action') {
+    // Remove any existing confirm modal
+    const existing = document.getElementById('custom-confirm-modal');
+    if (existing) existing.remove();
+    
+    const modalHTML = `
+        <div id="custom-confirm-modal" class="modal" style="display: flex; z-index: 10000;">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="color: var(--gray-700); font-size: 15px; line-height: 1.6;">
+                        ${message}
+                    </p>
+                </div>
+                <div class="modal-footer" style="display: flex; gap: 12px; padding: 20px; border-top: 1px solid var(--gray-200);">
+                    <button class="btn-secondary" style="flex: 1;" onclick="closeCustomConfirm(false)">
+                        Cancel
+                    </button>
+                    <button class="btn-primary" style="flex: 1;" onclick="closeCustomConfirm(true)">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Store the callback
+    window.customConfirmCallback = onConfirm;
+}
+
+function showAlert(message, type = 'info', title = null) {
+    // Remove any existing alert modal
+    const existing = document.getElementById('custom-alert-modal');
+    if (existing) existing.remove();
+    
+    // Determine icon and color based on type
+    let icon = 'ℹ️';
+    let color = 'var(--primary-blue)';
+    let defaultTitle = 'Information';
+    
+    if (type === 'success') {
+        icon = '✅';
+        color = '#22c55e';
+        defaultTitle = 'Success';
+    } else if (type === 'error') {
+        icon = '❌';
+        color = 'var(--error-red)';
+        defaultTitle = 'Error';
+    } else if (type === 'warning') {
+        icon = '⚠️';
+        color = '#eab308';
+        defaultTitle = 'Warning';
+    }
+    
+    const modalHTML = `
+        <div id="custom-alert-modal" class="modal" style="display: flex; z-index: 10000;">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header" style="background: ${color}; color: white;">
+                    <h2 style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 24px;">${icon}</span>
+                        ${title || defaultTitle}
+                    </h2>
+                    <button class="modal-close" style="color: white;" onclick="closeCustomAlert()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="color: var(--gray-700); font-size: 15px; line-height: 1.6;">
+                        ${message}
+                    </p>
+                </div>
+                <div class="modal-footer" style="padding: 20px; border-top: 1px solid var(--gray-200);">
+                    <button class="btn-primary" style="width: 100%; background: ${color};" onclick="closeCustomAlert()">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeCustomConfirm(result) {
+    const modal = document.getElementById('custom-confirm-modal');
+    if (modal) modal.remove();
+    
+    if (window.customConfirmCallback) {
+        if (result) {
+            window.customConfirmCallback();
+        }
+        delete window.customConfirmCallback;
+    }
+}
+
+function closeCustomAlert() {
+    const modal = document.getElementById('custom-alert-modal');
+    if (modal) modal.remove();
+}
+
+// Make functions globally available
+window.showConfirm = showConfirm;
+window.showAlert = showAlert;
+window.closeCustomConfirm = closeCustomConfirm;
+window.closeCustomAlert = closeCustomAlert;
+
+// ===================================
 // GLOBAL STATE
 // ===================================
 
@@ -45,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
     } catch (error) {
         console.error('💥 Initialization error:', error);
-        alert('Error loading deals board. Please refresh.');
+        showAlert('Error loading deals board. Please refresh.', 'error');
     }
 });
 
@@ -240,7 +352,7 @@ async function handlePlayerMove(playerId, newStatus) {
         
     } catch (error) {
         console.error('❌ Error moving player:', error);
-        alert('Error updating player status. Please try again.');
+        showAlert('Error updating player status. Please try again.', 'error');
         await loadPlayers(); // Revert on error
     }
 }
@@ -278,7 +390,7 @@ async function openTeamDealsModal(playerId) {
         
     } catch (error) {
         console.error('❌ Error opening modal:', error);
-        alert('Error loading team deals. Please try again.');
+        showAlert('Error loading team deals. Please try again.', 'error');
     }
 }
 
@@ -459,7 +571,7 @@ async function handleDealMove(dealId, newStage) {
                 await window.openContractManager(currentPlayer.id);
             } else {
                 console.error('❌ Contract Manager not loaded!');
-                alert('Contract Manager not available. Please refresh the page.');
+                showAlert('Contract Manager not available. Please refresh the page.', 'error');
             }
             
             return;
@@ -470,7 +582,7 @@ async function handleDealMove(dealId, newStage) {
         
     } catch (error) {
         console.error('❌ Error moving deal:', error);
-        alert('Error updating deal. Please try again.');
+        showAlert('Error updating deal. Please try again.', 'error');
         await loadTeamDeals(currentPlayer.id);
     }
 }
@@ -595,12 +707,12 @@ async function addNote() {
     const noteText = document.getElementById('note-text-input').value.trim();
     
     if (!teamId) {
-        alert('Please select a team');
+        showAlert('Please select a team', 'warning');
         return;
     }
     
     if (!noteText) {
-        alert('Please enter a note');
+        showAlert('Please enter a note', 'warning');
         return;
     }
     
@@ -609,7 +721,7 @@ async function addNote() {
         const deal = currentTeamDeals.find(d => d.team_id === teamId);
         
         if (!deal) {
-            alert('Deal not found');
+            showAlert('Deal not found', 'error');
             return;
         }
         
@@ -617,7 +729,7 @@ async function addNote() {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
             console.error('❌ Could not get user:', userError);
-            alert('Authentication error. Please refresh the page and try again.');
+            showAlert('Authentication error. Please refresh the page and try again.', 'error');
             return;
         }
         
@@ -643,7 +755,7 @@ async function addNote() {
         
     } catch (error) {
         console.error('❌ Error adding note:', error);
-        alert('Error adding note. Please try again.');
+        showAlert('Error adding note. Please try again.', 'error');
     }
 }
 
@@ -718,7 +830,7 @@ async function createTeamDeal(teamId) {
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
             console.error('❌ Could not get user:', userError);
-            alert('Authentication error. Please refresh the page and try again.');
+            showAlert('Authentication error. Please refresh the page and try again.', 'error');
             return;
         }
         
@@ -743,7 +855,7 @@ async function createTeamDeal(teamId) {
         
     } catch (error) {
         console.error('❌ Error creating deal:', error);
-        alert('Error creating deal. Please try again.');
+        showAlert('Error creating deal. Please try again.', 'error');
     }
 }
 
@@ -940,11 +1052,11 @@ async function saveReminder(e) {
             await loadTeamDeals(currentPlayer.id);
         }
         
-        alert('✅ Reminder added successfully!');
+        showAlert('Reminder added successfully!', 'success');
         
     } catch (error) {
         console.error('❌ Error saving reminder:', error);
-        alert('Error saving reminder. Please try again.');
+        showAlert('Error saving reminder. Please try again.', 'error');
     }
 }
 
