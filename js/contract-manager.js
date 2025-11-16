@@ -515,6 +515,18 @@ class ContractManager {
                             });
                         }
                         
+                        // Add expiration day reminder
+                        reminders.push({
+                            title: `CONTRACT EXPIRES TODAY - ${result.data.teams.name}`,
+                            description: `Contract with ${result.data.teams.name} expires today! Ensure renewal is signed or player is free agent.`,
+                            due_date: contractEndDate.toISOString().split('T')[0],
+                            completed: false,
+                            tag: 'contract',
+                            player_id: this.currentPlayerId,
+                            contract_id: result.data.id,
+                            auto_generated: true
+                        });
+                        
                         // Insert reminders if any were created
                         if (reminders.length > 0) {
                             const { error: reminderError } = await supabase
