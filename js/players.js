@@ -1530,9 +1530,25 @@ function formatNumber(number) {
 }
 
 function showSuccess(message) {
-    showAlert(message, 'success');
+    if (typeof showAlert === 'function') {
+        showAlert(message, 'success');
+    } else if (typeof window.showAlert === 'function') {
+        window.showAlert(message, 'success');
+    } else {
+        // Fallback - should never happen but just in case
+        console.error('showAlert not available, using fallback');
+        alert('✅ ' + message);
+    }
 }
 
 function showError(message) {
-    showAlert(message, 'error');
+    if (typeof showAlert === 'function') {
+        showAlert(message, 'error');
+    } else if (typeof window.showAlert === 'function') {
+        window.showAlert(message, 'error');
+    } else {
+        // Fallback - should never happen but just in case
+        console.error('showAlert not available, using fallback');
+        alert('❌ ' + message);
+    }
 }
