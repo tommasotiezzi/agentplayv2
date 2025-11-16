@@ -300,8 +300,8 @@ class ContractManager {
             this.updateCalculatedCommission();
         });
         
-        // Auto-check retroactive if end date is in the past
-        document.getElementById('contract_end_date').addEventListener('change', () => {
+        // Auto-check retroactive if end date is in the past - only when user finishes entering date
+        document.getElementById('contract_end_date').addEventListener('blur', () => {
             this.autoCheckRetroactive();
         });
         
@@ -314,11 +314,18 @@ class ContractManager {
     autoCheckRetroactive() {
         const endDate = document.getElementById('contract_end_date').value;
         
-        if (endDate) {
+        // Only check if we have a complete date (YYYY-MM-DD format)
+        if (endDate && endDate.length === 10) {
             const today = new Date();
             today.setHours(0, 0, 0, 0); // Reset time to compare only dates
             
             const contractEndDate = new Date(endDate);
+            
+            // Check if the date is valid
+            if (isNaN(contractEndDate.getTime())) {
+                return; // Invalid date, don't check
+            }
+            
             contractEndDate.setHours(0, 0, 0, 0);
             
             const retroactiveCheckbox = document.getElementById('added_retroactively');
