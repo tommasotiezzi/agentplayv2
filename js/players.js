@@ -8,6 +8,118 @@ let currentTab = 'under-management';
 let currentPlayer = null;
 
 // ===================================
+// CUSTOM MODAL DIALOGS
+// ===================================
+
+function showConfirm(message, onConfirm, title = 'Confirm Action') {
+    // Remove any existing confirm modal
+    const existing = document.getElementById('custom-confirm-modal');
+    if (existing) existing.remove();
+    
+    const modalHTML = `
+        <div id="custom-confirm-modal" class="modal" style="display: flex; z-index: 10000;">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header">
+                    <h2>${title}</h2>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="color: var(--gray-700); font-size: 15px; line-height: 1.6;">
+                        ${message}
+                    </p>
+                </div>
+                <div class="modal-footer" style="display: flex; gap: 12px; padding: 20px; border-top: 1px solid var(--gray-200);">
+                    <button class="btn-secondary" style="flex: 1;" onclick="closeCustomConfirm(false)">
+                        Cancel
+                    </button>
+                    <button class="btn-primary" style="flex: 1;" onclick="closeCustomConfirm(true)">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Store the callback
+    window.customConfirmCallback = onConfirm;
+}
+
+function showAlert(message, type = 'info', title = null) {
+    // Remove any existing alert modal
+    const existing = document.getElementById('custom-alert-modal');
+    if (existing) existing.remove();
+    
+    // Determine icon and color based on type
+    let icon = 'ℹ️';
+    let color = 'var(--primary-blue)';
+    let defaultTitle = 'Information';
+    
+    if (type === 'success') {
+        icon = '✅';
+        color = '#22c55e';
+        defaultTitle = 'Success';
+    } else if (type === 'error') {
+        icon = '❌';
+        color = 'var(--error-red)';
+        defaultTitle = 'Error';
+    } else if (type === 'warning') {
+        icon = '⚠️';
+        color = '#eab308';
+        defaultTitle = 'Warning';
+    }
+    
+    const modalHTML = `
+        <div id="custom-alert-modal" class="modal" style="display: flex; z-index: 10000;">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header" style="background: ${color}; color: white;">
+                    <h2 style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 24px;">${icon}</span>
+                        ${title || defaultTitle}
+                    </h2>
+                    <button class="modal-close" style="color: white;" onclick="closeCustomAlert()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="color: var(--gray-700); font-size: 15px; line-height: 1.6;">
+                        ${message}
+                    </p>
+                </div>
+                <div class="modal-footer" style="padding: 20px; border-top: 1px solid var(--gray-200);">
+                    <button class="btn-primary" style="width: 100%; background: ${color};" onclick="closeCustomAlert()">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeCustomConfirm(result) {
+    const modal = document.getElementById('custom-confirm-modal');
+    if (modal) modal.remove();
+    
+    if (window.customConfirmCallback) {
+        if (result) {
+            window.customConfirmCallback();
+        }
+        delete window.customConfirmCallback;
+    }
+}
+
+function closeCustomAlert() {
+    const modal = document.getElementById('custom-alert-modal');
+    if (modal) modal.remove();
+}
+
+// Make functions globally available
+window.showConfirm = showConfirm;
+window.showAlert = showAlert;
+window.closeCustomConfirm = closeCustomConfirm;
+window.closeCustomAlert = closeCustomAlert;
+
+// ===================================
 // INITIALIZATION
 // ===================================
 
@@ -34,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Players page initialization complete!');
     } catch (error) {
         console.error('💥 FATAL ERROR in players.js initialization:', error);
-        alert('Error loading players page. Check console for details.');
+        showAlert('Error loading players page. Check console for details.', 'error');
     }
 });
 
@@ -517,7 +629,7 @@ async function addPlayer(type, formData) {
         
         if (type === 'player') {
             setTimeout(() => {
-                alert('ℹ️ Player added successfully!\n\nYou can add contract details from the player\'s profile page.');
+                showAlert('Player added successfully!<br><br>You can add contract details from the player\'s profile page.', 'success');
             }, 500);
         }
         
@@ -694,34 +806,35 @@ async function updatePlayerContact(playerId, playerData) {
 // ===================================
 
 async function deletePlayer(playerId) {
-    if (!confirm('Are you sure you want to delete this player? This action cannot be undone.')) {
-        return;
-    }
-    
-    try {
-        console.log('🗑️ Deleting player:', playerId);
-        
-        const { error } = await supabase
-            .from('players')
-            .delete()
-            .eq('id', playerId);
-        
-        if (error) {
-            console.error('❌ Database error:', error);
-            throw error;
-        }
-        
-        console.log('✅ Player deleted successfully');
-        
-        await loadPlayers();
-        hidePlayerDetail();
-        
-        showSuccess('Player deleted successfully');
-        
-    } catch (error) {
-        console.error('❌ Error deleting player:', error);
-        showError('Failed to delete player. Please try again.');
-    }
+    showConfirm(
+        'Are you sure you want to delete this player?<br><br><strong>⚠️ This action cannot be undone.</strong>',
+        async () => {
+            try {
+                console.log('🗑️ Deleting player:', playerId);
+                
+                const { error } = await supabase
+                    .from('players')
+                    .delete()
+                    .eq('id', playerId);
+                
+                if (error) {
+                    console.error('❌ Database error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Player deleted successfully');
+                
+                await loadPlayers();
+                hidePlayerDetail();
+                showAlert('Player deleted successfully', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error deleting player:', error);
+                showAlert('Error deleting player. Please try again.', 'error');
+            }
+        },
+        'Delete Player'
+    );
 }
 
 // ===================================
@@ -780,7 +893,7 @@ function attachEventListeners() {
         const type = document.getElementById('player_type').value;
         
         if (!type) {
-            alert('Please select a type (Prospect or Under Management)');
+            showAlert('Please select a type (Prospect or Under Management)', 'warning');
             return;
         }
         
@@ -1417,9 +1530,9 @@ function formatNumber(number) {
 }
 
 function showSuccess(message) {
-    alert('✅ ' + message);
+    showAlert(message, 'success');
 }
 
 function showError(message) {
-    alert('❌ ' + message);
+    showAlert(message, 'error');
 }
