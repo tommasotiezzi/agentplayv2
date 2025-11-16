@@ -2,7 +2,6 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar - Agent Platform</title>
     <link rel="stylesheet" href="../css/dashboard.css">
@@ -16,7 +15,14 @@
                     <h1>Calendar</h1>
                     <p class="page-subtitle">Your reminders and important dates</p>
                 </div>
-                <div style="display: flex; gap: 12px;">
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button onclick="window.exportCalendarICal()" class="btn-primary" style="display: flex; align-items: center; gap: 6px;">
+                        <span>📥</span> Export .ics
+                    </button>
+                    <button onclick="window.showCalendarSubscription()" class="btn-secondary" style="display: flex; align-items: center; gap: 6px;">
+                        <span>📲</span> Subscribe
+                    </button>
+                    <div style="width: 1px; height: 24px; background: var(--gray-300); margin: 0 8px;"></div>
                     <button id="btn-prev-month" class="btn-secondary">← Prev</button>
                     <button id="btn-today" class="btn-secondary">Today</button>
                     <button id="btn-next-month" class="btn-secondary">Next →</button>
@@ -57,6 +63,7 @@
     <script src="../js/supabase-config.js"></script>
     <script src="../js/components/navbar.js"></script>
     <script src="../js/components/sidebar.js"></script>
+    <script src="../js/calendar-subscription.js"></script>
     <script src="../js/calendar.js"></script>
 </body>
 </html>
