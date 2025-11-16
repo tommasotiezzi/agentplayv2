@@ -4,12 +4,14 @@
 
 let currentDate = new Date();
 let reminders = [];
+let players = {};  // Store player data for quick lookup
 
 document.addEventListener('DOMContentLoaded', async () => {
     await checkAuth();
     if (typeof window.initSidebar === 'function') {
         window.initSidebar('calendar');
     }
+    await loadPlayers();
     await loadReminders();
     renderCalendar();
     renderUpcomingReminders();
@@ -20,6 +22,26 @@ async function checkAuth() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
         window.location.href = '../index.html';
+    }
+}
+
+async function loadPlayers() {
+    try {
+        const { data, error } = await supabase
+            .from('players')
+            .select('id, first_name, last_name');
+        
+        if (error) throw error;
+        
+        // Convert to lookup object
+        players = {};
+        (data || []).forEach(player => {
+            players[player.id] = `${player.first_name} ${player.last_name}`;
+        });
+        
+        console.log('✅ Players loaded for calendar');
+    } catch (error) {
+        console.error('❌ Error loading players:', error);
     }
 }
 
@@ -107,19 +129,177 @@ function renderCalendar() {
             // Use green for completed (#22c55e), yellow for in-progress (#eab308)
             const bgColor = reminder.completed ? '#22c55e' : '#eab308';
             reminderEl.style.cssText = `font-size: 11px; padding: 3px 6px; margin-bottom: 2px; background: ${bgColor}; color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;`;
-            reminderEl.textContent = reminder.title;
+            
+            // Get player name if reminder has a player_id
+            let displayText = '';
+            if (reminder.player_id && players[reminder.player_id]) {
+                // Show player name first, then beginning of title
+                const playerName = players[reminder.player_id];
+                const shortTitle = reminder.title.substring(0, 20);
+                displayText = `${playerName} - ${shortTitle}...`;
+            } else {
+                // Just show the beginning of the title
+                displayText = reminder.title.substring(0, 30) + (reminder.title.length > 30 ? '...' : '');
+            }
+            
+            reminderEl.textContent = displayText;
             reminderEl.title = reminder.title + (reminder.completed ? ' ✓' : '');
+            
+            // Add click handler to open modal
+            reminderEl.onclick = () => openReminderModal(reminder);
+            
             dayCell.appendChild(reminderEl);
         });
         
         if (dayReminders.length > 3) {
             const moreEl = document.createElement('div');
-            moreEl.style.cssText = 'font-size: 10px; color: var(--gray-600); font-weight: 600; margin-top: 4px;';
+            moreEl.style.cssText = 'font-size: 10px; color: var(--gray-600); font-weight: 600; margin-top: 4px; cursor: pointer;';
             moreEl.textContent = `+${dayReminders.length - 3} more`;
+            moreEl.onclick = () => openDayRemindersModal(day, month, year, dayReminders);
             dayCell.appendChild(moreEl);
         }
         
         grid.appendChild(dayCell);
+    }
+}
+
+function openReminderModal(reminder) {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('reminder-detail-modal');
+    if (existingModal) existingModal.remove();
+    
+    // Get player name
+    const playerName = reminder.player_id && players[reminder.player_id] 
+        ? players[reminder.player_id] 
+        : 'N/A';
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div id="reminder-detail-modal" class="modal" style="display: flex;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>Reminder Details</h2>
+                    <button class="modal-close" onclick="closeReminderModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Title</label>
+                        <p style="margin-top: 4px; font-size: 16px; color: var(--gray-900);">${reminder.title}</p>
+                    </div>
+                    
+                    ${reminder.description ? `
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Description</label>
+                        <p style="margin-top: 4px; color: var(--gray-700);">${reminder.description}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Due Date</label>
+                            <p style="margin-top: 4px; color: var(--gray-900);">${formatDate(reminder.due_date)}</p>
+                        </div>
+                        
+                        <div>
+                            <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Status</label>
+                            <p style="margin-top: 4px;">
+                                <span class="status-badge ${reminder.completed ? 'signed' : 'free_agent'}">
+                                    ${reminder.completed ? 'Completed' : 'Pending'}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Player</label>
+                            <p style="margin-top: 4px; color: var(--gray-900);">${playerName}</p>
+                        </div>
+                        
+                        <div>
+                            <label style="font-weight: 600; color: var(--gray-600); font-size: 12px; text-transform: uppercase;">Tag</label>
+                            <p style="margin-top: 4px; color: var(--gray-900);">${reminder.tag || 'General'}</p>
+                        </div>
+                    </div>
+                    
+                    ${!reminder.completed ? `
+                    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--gray-200);">
+                        <button onclick="completeReminderFromModal('${reminder.id}')" class="btn-primary" style="width: 100%;">
+                            ✓ Mark as Complete
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function openDayRemindersModal(day, month, year, dayReminders) {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('day-reminders-modal');
+    if (existingModal) existingModal.remove();
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const remindersList = dayReminders.map(reminder => {
+        const playerName = reminder.player_id && players[reminder.player_id] 
+            ? players[reminder.player_id] 
+            : '';
+        
+        return `
+            <div style="padding: 12px; border-bottom: 1px solid var(--gray-100); cursor: pointer;" 
+                 onclick="closeReminderModal(); openReminderModal(${JSON.stringify(reminder).replace(/"/g, '&quot;')})">
+                <div style="font-weight: 600; color: var(--gray-900);">${reminder.title}</div>
+                ${playerName ? `<div style="font-size: 13px; color: var(--gray-600); margin-top: 4px;">Player: ${playerName}</div>` : ''}
+                <div style="font-size: 12px; color: ${reminder.completed ? '#22c55e' : '#eab308'}; margin-top: 4px;">
+                    ${reminder.completed ? '✓ Completed' : '⏳ Pending'}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    const modalHTML = `
+        <div id="day-reminders-modal" class="modal" style="display: flex;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>${monthNames[month]} ${day}, ${year}</h2>
+                    <button class="modal-close" onclick="closeReminderModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="padding: 0;">
+                    ${remindersList}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeReminderModal() {
+    const modal = document.getElementById('reminder-detail-modal') || document.getElementById('day-reminders-modal');
+    if (modal) modal.remove();
+}
+
+async function completeReminderFromModal(reminderId) {
+    try {
+        const { error } = await supabase
+            .from('reminders')
+            .update({ completed: true })
+            .eq('id', reminderId);
+        
+        if (error) throw error;
+        
+        closeReminderModal();
+        await loadReminders();
+        renderCalendar();
+        renderUpcomingReminders();
+    } catch (error) {
+        console.error('❌ Error:', error);
+        alert('Error completing reminder');
     }
 }
 
@@ -141,17 +321,20 @@ function renderUpcomingReminders() {
     const html = upcoming.map(r => {
         const dueDate = new Date(r.due_date);
         const isOverdue = dueDate < today;
+        const playerName = r.player_id && players[r.player_id] ? players[r.player_id] : '';
         
         return `
-            <div class="detail-row" style="padding: 12px 0; border-bottom: 1px solid var(--gray-100);">
-                <div>
+            <div class="detail-row" style="padding: 12px 0; border-bottom: 1px solid var(--gray-100); cursor: pointer;"
+                 onclick="openReminderModal(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+                <div style="flex: 1;">
                     <div style="font-weight: 600; color: var(--gray-900);">${r.title}</div>
-                    ${r.description ? `<div style="font-size: 13px; color: var(--gray-600); margin-top: 4px;">${r.description}</div>` : ''}
+                    ${playerName ? `<div style="font-size: 13px; color: var(--gray-600); margin-top: 4px;">Player: ${playerName}</div>` : ''}
+                    ${r.description ? `<div style="font-size: 13px; color: var(--gray-600); margin-top: 4px;">${r.description.substring(0, 100)}...</div>` : ''}
                     <div style="font-size: 12px; color: ${isOverdue ? 'var(--error-red)' : '#eab308'}; margin-top: 4px; font-weight: 600;">
                         ${formatDate(r.due_date)}${isOverdue ? ' (Overdue)' : ''}
                     </div>
                 </div>
-                <button onclick="completeReminder('${r.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 13px;">✓ Complete</button>
+                <button onclick="event.stopPropagation(); completeReminder('${r.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 13px;">✓ Complete</button>
             </div>
         `;
     }).join('');
@@ -201,3 +384,9 @@ function formatDate(dateString) {
         day: 'numeric'
     });
 }
+
+// Make modal functions available globally
+window.closeReminderModal = closeReminderModal;
+window.completeReminderFromModal = completeReminderFromModal;
+window.completeReminder = completeReminder;
+window.openReminderModal = openReminderModal;
