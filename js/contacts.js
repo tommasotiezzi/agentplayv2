@@ -187,8 +187,17 @@ async function deleteContact(contactId) {
 async function saveContact(e) {
     e.preventDefault();
     
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+        console.error('❌ Could not get user:', userError);
+        alert('Authentication error. Please refresh the page and try again.');
+        return;
+    }
+    
     const contactId = document.getElementById('contact_id').value;
     const contactData = {
+        user_id: user.id,  // ADD USER_ID for RLS policies
         name: document.getElementById('contact_name').value,
         role: document.getElementById('contact_role').value || null,
         email: document.getElementById('contact_email').value || null,

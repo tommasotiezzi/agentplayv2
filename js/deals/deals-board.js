@@ -613,9 +613,18 @@ async function addNote() {
             return;
         }
         
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.error('❌ Could not get user:', userError);
+            alert('Authentication error. Please refresh the page and try again.');
+            return;
+        }
+        
         const { error } = await supabase
             .from('deal_notes')
             .insert([{
+                user_id: user.id,  // ADD USER_ID for RLS policies
                 team_deal_id: deal.id,
                 note_text: noteText,
                 deal_stage_at_time: deal.deal_stage
@@ -705,9 +714,18 @@ async function createTeamDeal(teamId) {
     try {
         console.log('➕ Creating team deal:', teamId);
         
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.error('❌ Could not get user:', userError);
+            alert('Authentication error. Please refresh the page and try again.');
+            return;
+        }
+        
         const { error } = await supabase
             .from('team_deals')
             .insert([{
+                user_id: user.id,  // ADD USER_ID for RLS policies
                 player_id: currentPlayer.id,
                 team_id: teamId,
                 deal_stage: 'ongoing'

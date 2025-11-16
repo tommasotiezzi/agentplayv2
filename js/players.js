@@ -442,7 +442,16 @@ async function addPlayer(type, formData) {
         let data, error;
         
         if (type === 'prospect') {
+            // Get current user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError || !user) {
+                console.error('❌ Could not get user:', userError);
+                alert('Authentication error. Please refresh the page and try again.');
+                return;
+            }
+            
             const prospectData = {
+                user_id: user.id,  // ADD USER_ID for RLS policies
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
@@ -460,7 +469,16 @@ async function addPlayer(type, formData) {
             error = result.error;
             
         } else {
+            // Get current user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError || !user) {
+                console.error('❌ Could not get user:', userError);
+                alert('Authentication error. Please refresh the page and try again.');
+                return;
+            }
+            
             const playerData = {
+                user_id: user.id,  // ADD USER_ID for RLS policies
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 date_of_birth: formData.date_of_birth || null,
@@ -557,6 +575,13 @@ async function createPlayerContact(playerId, playerData) {
     try {
         console.log('📇 Creating contact for new player:', playerId);
         
+        // Get current user
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.error('❌ Could not get user:', userError);
+            return;
+        }
+        
         // Get team_id from current contract if exists
         let teamId = null;
         if (playerData.current_contract_id) {
@@ -572,6 +597,7 @@ async function createPlayerContact(playerId, playerData) {
         }
         
         const contactData = {
+            user_id: user.id,  // ADD USER_ID for RLS policies
             name: `${playerData.first_name} ${playerData.last_name}`,
             role: playerData.position || 'Player',
             email: playerData.email || null,

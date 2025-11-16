@@ -382,8 +382,17 @@ class ContractManager {
             // 2. NOT marked as retroactive
             const isActive = (contractEndDate >= today) && !isRetroactive;
             
+            // Get current user for contract creation (moved here to use for formData)
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError || !user) {
+                console.error('❌ Could not get user:', userError);
+                alert('Authentication error. Please refresh the page and try again.');
+                return;
+            }
+            
             const formData = {
                 player_id: this.currentPlayerId,
+                user_id: user.id,  // ADD USER_ID for RLS policies
                 team_id: document.getElementById('contract_team').value,
                 competition_id: document.getElementById('contract_competition').value,
                 contract_value: parseFloat(document.getElementById('contract_value').value),
@@ -483,13 +492,7 @@ class ContractManager {
                     if (contractEndDate > today) {
                         console.log('📅 Creating automatic contract expiration reminders...');
                         
-                        // Get current user for user_id
-                        const { data: { user }, error: userError } = await supabase.auth.getUser();
-                        if (userError || !user) {
-                            console.error('❌ Could not get user for reminders:', userError);
-                            return;
-                        }
-                        
+                        // Get current user for user_id (already fetched above for formData)
                         console.log('👤 User ID for reminders:', user.id);
                         
                         // Calculate reminder dates
@@ -512,7 +515,7 @@ class ContractManager {
                                 description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}`,
                                 due_date: reminder90Days.toISOString().split('T')[0],
                                 completed: false,
-                                tag: 'contract',
+                                tag: 'contract_expiry',  // FIXED: Changed from 'contract'
                                 player_id: this.currentPlayerId,
                                 contract_id: result.data.id,
                                 auto_generated: true,
@@ -531,7 +534,7 @@ class ContractManager {
                                 description: `Contract with ${result.data.teams.name} expires on ${contractEndDate.toLocaleDateString('it-IT')}. Time to negotiate renewal or find new opportunities.`,
                                 due_date: reminder30Days.toISOString().split('T')[0],
                                 completed: false,
-                                tag: 'contract',
+                                tag: 'contract_expiry',  // FIXED: Changed from 'contract'
                                 player_id: this.currentPlayerId,
                                 contract_id: result.data.id,
                                 auto_generated: true,
@@ -549,7 +552,7 @@ class ContractManager {
                             description: `Contract with ${result.data.teams.name} expires today! Ensure renewal is signed or player is free agent.`,
                             due_date: contractEndDate.toISOString().split('T')[0],
                             completed: false,
-                            tag: 'contract',
+                            tag: 'contract_expiry',  // FIXED: Changed from 'contract'
                             player_id: this.currentPlayerId,
                             contract_id: result.data.id,
                             auto_generated: true,
