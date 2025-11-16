@@ -5,37 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent Platform - Dashboard</title>
     <link rel="stylesheet" href="../css/dashboard.css">
-    <link rel="stylesheet" href="../css/players.css">
 </head>
 <body>
     <!-- Navbar and Sidebar will be injected by components -->
     
     <div class="app-container">
         <main class="main-content">
-            <div class="welcome-card">
-                <h1>🎉 Benvenuto nella tua piattaforma!</h1>
-                <p>Stiamo costruendo qualcosa di fantastico per te.</p>
-                <div class="placeholder-grid">
-                    <a href="players.html" class="placeholder-card" style="text-decoration: none;">
-                        <div class="card-icon">👥</div>
-                        <h3>Players</h3>
-                        <p>Gestisci il tuo roster</p>
-                    </a>
-                    <div class="placeholder-card" style="opacity: 0.5;">
-                        <div class="card-icon">🤝</div>
-                        <h3>Deals</h3>
-                        <p>Coming soon...</p>
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p>Panoramica completa della tua attività</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-card-icon players">👥</div>
+                    <div class="summary-card-label">Players</div>
+                    <div class="summary-card-value" id="total-players">0</div>
+                    <div class="summary-card-meta" id="signed-players">0 Signed</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-icon prospects">🎯</div>
+                    <div class="summary-card-label">Prospects</div>
+                    <div class="summary-card-value" id="total-prospects">0</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-icon negotiations">🤝</div>
+                    <div class="summary-card-label">Negoziazioni Attive</div>
+                    <div class="summary-card-value" id="active-negotiations">0</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-icon revenue">💰</div>
+                    <div class="summary-card-label">Entrate YTD</div>
+                    <div class="summary-card-value" id="ytd-revenue">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-card-icon payments">📊</div>
+                    <div class="summary-card-label">Pagamenti Pendenti</div>
+                    <div class="summary-card-value" id="pending-payments">€0</div>
+                    <div class="summary-card-meta" id="pending-count">0 Pending</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Upcoming Reminders -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">📅 Promemoria Imminenti</h2>
+                        <a href="calendar.html" class="section-link">Vedi tutti →</a>
                     </div>
-                    <div class="placeholder-card" style="opacity: 0.5;">
-                        <div class="card-icon">📝</div>
-                        <h3>Contracts</h3>
-                        <p>Coming soon...</p>
+                    <div id="reminders-list" class="section-content">
+                        <p class="empty-message">Caricamento...</p>
                     </div>
-                    <div class="placeholder-card" style="opacity: 0.5;">
-                        <div class="card-icon">💰</div>
-                        <h3>Payments</h3>
-                        <p>Coming soon...</p>
+                </div>
+
+                <!-- Active Negotiations -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">🤝 Negoziazioni Attive</h2>
+                        <a href="deals.html" class="section-link">Vedi tutte →</a>
                     </div>
+                    <div id="negotiations-list" class="section-content">
+                        <p class="empty-message">Caricamento...</p>
+                    </div>
+                </div>
+
+                <!-- Pending Payments -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">💵 Pagamenti in Sospeso</h2>
+                        <a href="payments.html" class="section-link">Vedi tutti →</a>
+                    </div>
+                    <div id="payments-list" class="section-content">
+                        <p class="empty-message">Caricamento...</p>
+                    </div>
+                </div>
+
+                <!-- Contract Expirations -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">📋 Contratti in Scadenza</h2>
+                        <a href="players.html" class="section-link">Vedi tutti →</a>
+                    </div>
+                    <div id="contracts-expiring" class="section-content">
+                        <p class="empty-message">Caricamento...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="section-card" style="margin-top: 30px;">
+                <div class="section-header">
+                    <h2 class="section-title">🔄 Attività Recente</h2>
+                </div>
+                <div id="recent-activity" class="section-content">
+                    <p class="empty-message">Caricamento...</p>
                 </div>
             </div>
         </main>
